@@ -1,0 +1,494 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GoalBot — 30-Day Notebook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Crimson+Pro:wght@400;600&amp;display=swap" rel="preconnect" as="style" onload="this.rel='stylesheet'">
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-stone-50 text-stone-900 antialiased selection:bg-amber-200/70 selection:text-stone-900" style="font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;">
+    <!-- Paper texture + ruled lines -->
+    <div class="fixed inset-0 pointer-events-none" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(0,0,0,0.035) 31px, rgba(0,0,0,0.035) 32px); opacity: 0.12;"></div>
+    <div class="fixed inset-0 pointer-events-none" style="background: radial-gradient(1200px 600px at 50% -10%, rgba(0,0,0,0.08), transparent 60%);"></div>
+  
+    <main class="mx-auto max-w-3xl h-[92vh] sm:h-[90vh] px-4 py-6">
+      <div class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_1px_0_0_rgba(17,17,17,0.03),0_12px_40px_-12px_rgba(17,17,17,0.10)]">
+        <!-- Header -->
+        <header class="flex items-center justify-between border-b border-stone-200/80 bg-white/90 px-4 py-3 sm:px-6 backdrop-blur">
+          <div class="flex items-center gap-3">
+            <div class="grid h-8 w-8 place-content-center rounded-lg border border-stone-300 text-xs font-semibold tracking-tight text-stone-800">
+              GB
+            </div>
+            <div class="flex flex-col">
+              <h1 class="font-[Crimson_Pro] text-[22px] sm:text-[26px] font-semibold tracking-tight text-stone-900">GoalBot</h1>
+              <span class="text-[12px] text-stone-500">Your 30‑day goal notebook</span>
+            </div>
+          </div>
+  
+          <!-- Progress Indicator -->
+          <div id="progressIndicator" class="hidden text-right">
+            <div id="progressDay" class="text-[12px] font-medium text-stone-700">Day 0 of 30</div>
+            <div id="progressWeek" class="text-[11px] text-stone-400">Week 1 of 4</div>
+          </div>
+        </header>
+  
+        <!-- Auth Section -->
+        <section id="authSection" class="flex flex-1 items-center justify-center p-6">
+          <div class="w-full max-w-md">
+            <!-- Login -->
+            <div id="loginForm" class="rounded-xl border border-stone-200 bg-white/90 p-6 shadow-sm">
+              <h2 class="mb-4 font-[Crimson_Pro] text-[22px] font-semibold tracking-tight text-stone-900">Welcome</h2>
+  
+              <label class="mb-2 block text-[13px] font-medium text-stone-600">Email</label>
+              <input id="loginEmail" type="email" placeholder="you@example.com" class="mb-4 w-full rounded-lg border border-stone-300 bg-white px-3.5 py-2.5 text-[15px] outline-none ring-0 transition focus:border-stone-800 focus:ring-0 placeholder:text-stone-400">
+  
+              <label class="mb-2 block text-[13px] font-medium text-stone-600">Password</label>
+              <input id="loginPassword" type="password" placeholder="••••••••" class="mb-4 w-full rounded-lg border border-stone-300 bg-white px-3.5 py-2.5 text-[15px] outline-none ring-0 transition focus:border-stone-800 focus:ring-0 placeholder:text-stone-400">
+  
+              <div class="mt-2 flex items-center gap-3">
+                <button onclick="login()" class="inline-flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2.5 text-[14px] font-medium text-white outline-none transition hover:bg-stone-950 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">
+                  <span>Login</span>
+                </button>
+                <button onclick="showSignup()" class="text-[14px] font-medium text-stone-700 underline underline-offset-4 hover:text-stone-900">Create account</button>
+              </div>
+              <div id="loginError" class="mt-3 hidden text-[14px] text-rose-600"></div>
+            </div>
+  
+            <!-- Signup -->
+            <div id="signupForm" class="mt-4 hidden rounded-xl border border-stone-200 bg-white/90 p-6 shadow-sm">
+              <h2 class="mb-4 font-[Crimson_Pro] text-[22px] font-semibold tracking-tight text-stone-900">Create Account</h2>
+  
+              <label class="mb-2 block text-[13px] font-medium text-stone-600">Username</label>
+              <input id="signupUsername" type="text" placeholder="your_name" class="mb-4 w-full rounded-lg border border-stone-300 bg-white px-3.5 py-2.5 text-[15px] outline-none ring-0 transition focus:border-stone-800 focus:ring-0 placeholder:text-stone-400">
+  
+              <label class="mb-2 block text-[13px] font-medium text-stone-600">Email</label>
+              <input id="signupEmail" type="email" placeholder="you@example.com" class="mb-4 w-full rounded-lg border border-stone-300 bg-white px-3.5 py-2.5 text-[15px] outline-none ring-0 transition focus:border-stone-800 focus:ring-0 placeholder:text-stone-400">
+  
+              <label class="mb-2 block text-[13px] font-medium text-stone-600">Password</label>
+              <input id="signupPassword" type="password" placeholder="••••••••" class="mb-4 w-full rounded-lg border border-stone-300 bg-white px-3.5 py-2.5 text-[15px] outline-none ring-0 transition focus:border-stone-800 focus:ring-0 placeholder:text-stone-400">
+  
+              <div class="mt-2 flex items-center gap-3">
+                <button onclick="signup()" class="inline-flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2.5 text-[14px] font-medium text-white outline-none transition hover:bg-stone-950 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">
+                  <span>Sign Up</span>
+                </button>
+                <button onclick="showLogin()" class="text-[14px] font-medium text-stone-700 underline underline-offset-4 hover:text-stone-900">Back to login</button>
+              </div>
+              <div id="signupError" class="mt-3 hidden text-[14px] text-rose-600"></div>
+            </div>
+          </div>
+        </section>
+  
+        <!-- Chat Section -->
+        <section id="chatSection" class="hidden h-full flex-col overflow-hidden">
+          <!-- Scrollable Messages Container -->
+          <div id="messages" class="flex-1 overflow-y-auto min-h-0 px-4 py-5 sm:px-6 sm:py-6">
+            <div class="mb-5 flex">
+              <div class="max-w-[75%] sm:max-w-[65%] border-l-2 border-stone-200 pl-4 text-[15px] leading-7 text-stone-800">
+                What do you want to work on over the next 30 days?
+              </div>
+            </div>
+          </div>
+  
+          <!-- Fixed Input Area at Bottom -->
+          <div class="flex-shrink-0 border-t border-stone-200 bg-white px-4 py-4 sm:px-6">
+            <div class="flex items-end gap-3">
+              <div class="flex-1">
+                <textarea id="userInput" rows="2" placeholder="Write your goal here..." class="w-full resize-none rounded-xl border border-stone-300 bg-white px-3.5 py-3 text-[15px] leading-6 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-900"></textarea>
+              </div>
+              <button onclick="sendMessage()" class="inline-flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2.5 text-[14px] font-medium text-white outline-none transition hover:bg-stone-950 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 15 22 11 13 2 9 22 2"></path><path d="M22 2 11 13"></path></svg>
+                <span>Submit</span>
+              </button>
+            </div>
+            
+            <!-- Goal Templates - inline under input when visible -->
+            <div id="goalTemplates" class="mt-4 pt-4 border-t border-stone-200">
+              <div class="mb-3 text-[12px] font-medium uppercase tracking-[0.08em] text-stone-500">Popular goals</div>
+              <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                <button onclick="selectTemplate('Drink 8 glasses of water daily')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Drink more water</button>
+                <button onclick="selectTemplate('Have at least one meaningful conversation with a friend each week')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Improve friendships</button>
+                <button onclick="selectTemplate('Reduce daily screen time by 30%')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Decrease screen time</button>
+                <button onclick="selectTemplate('Cook at least 4 home-cooked meals per week')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Cook more meals</button>
+                <button onclick="selectTemplate('Read and finish 2 books in 30 days')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Read more books</button>
+                <button onclick="selectTemplate('Exercise for 30 minutes every day')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Daily exercise</button>
+                <button onclick="selectTemplate('Practice meditation for 10 minutes daily')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Start meditation</button>
+                <button onclick="selectTemplate('Maintain a consistent 7-8 hour sleep schedule')" class="group rounded-lg border border-stone-300 bg-white px-3 py-2 text-left text-[14px] text-stone-800 outline-none transition hover:-translate-y-0.5 hover:border-stone-800 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Better sleep</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  
+    <script>
+      const API_BASE = 'http://localhost:8000/api/goalbot';
+      let authToken = localStorage.getItem('goalbot_token');
+      let currentGoalId = localStorage.getItem('current_goal_id');
+      let conversationState = 'initial'; // initial, clarifying, confirming, accepting, active
+      let clarificationQuestions = [];
+      let refinedGoal = null;
+  
+      // Device-specific session ID for MVP privacy
+      let sessionId = localStorage.getItem('goalbot_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem('goalbot_session_id', sessionId);
+      }
+  
+      function getHeaders() {
+        return {
+          'Content-Type': 'application/json',
+          'X-Session-ID': sessionId
+        };
+      }
+  
+      // Initialize - Skip auth for MVP
+      document.getElementById('authSection').style.display = 'none';
+      const chat = document.getElementById('chatSection');
+      chat.classList.remove('hidden');
+      chat.classList.add('flex');
+  
+      // Use anonymous token for MVP
+      if (!authToken) {
+        authToken = 'anonymous-' + Date.now();
+        localStorage.setItem('goalbot_token', authToken);
+      }
+  
+      loadCurrentGoal();
+  
+      function showSignup() {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('signupForm').classList.remove('hidden');
+      }
+  
+      function showLogin() {
+        document.getElementById('signupForm').classList.add('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+      }
+  
+      async function signup() {
+        const username = document.getElementById('signupUsername').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+  
+        try {
+          const response = await fetch(`${API_BASE}/signup`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, email, password})
+          });
+  
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Signup failed');
+          }
+  
+          const data = await response.json();
+          authToken = data.access_token;
+          localStorage.setItem('goalbot_token', authToken);
+  
+          document.getElementById('authSection').style.display = 'none';
+          const chatSection = document.getElementById('chatSection');
+          chatSection.classList.remove('hidden');
+          chatSection.classList.add('flex');
+        } catch (error) {
+          const el = document.getElementById('signupError');
+          el.textContent = error.message;
+          el.classList.remove('hidden');
+        }
+      }
+  
+      async function login() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+  
+        try {
+          const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+          });
+  
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Login failed');
+          }
+  
+          const data = await response.json();
+          authToken = data.access_token;
+          localStorage.setItem('goalbot_token', authToken);
+  
+          document.getElementById('authSection').style.display = 'none';
+          const chatSection = document.getElementById('chatSection');
+          chatSection.classList.remove('hidden');
+          chatSection.classList.add('flex');
+          loadCurrentGoal();
+        } catch (error) {
+          const el = document.getElementById('loginError');
+          el.textContent = error.message;
+          el.classList.remove('hidden');
+        }
+      }
+  
+      async function loadCurrentGoal() {
+        try {
+          const response = await fetch(`${API_BASE}/goals`, { headers: getHeaders() });
+          if (response.ok) {
+            const goals = await response.json();
+            const activeGoal = goals.find(g => g.status === 'active');
+            if (activeGoal) {
+              currentGoalId = activeGoal.id;
+              localStorage.setItem('current_goal_id', currentGoalId);
+              conversationState = 'active';
+              updateProgress(activeGoal.current_day);
+              addBotMessage(`Welcome back. You're on day ${activeGoal.current_day} of your goal: "${activeGoal.refined_goal}". Ready for today's check-in?`);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading goal:', error);
+        }
+      }
+  
+      function selectTemplate(goalText) {
+        const input = document.getElementById('userInput');
+        input.value = goalText;
+        input.focus();
+        document.getElementById('goalTemplates').classList.add('hidden');
+      }
+  
+      function showTypingIndicator() {
+        const messages = document.getElementById('messages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'mb-5 flex';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+          <div class="max-w-[75%] sm:max-w-[65%] border-l-2 border-stone-200 pl-4">
+            <div class="inline-flex items-center gap-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-stone-500/70 animate-bounce" style="animation-delay: 0ms;"></span>
+              <span class="h-1.5 w-1.5 rounded-full bg-stone-500/60 animate-bounce" style="animation-delay: 120ms;"></span>
+              <span class="h-1.5 w-1.5 rounded-full bg-stone-500/50 animate-bounce" style="animation-delay: 240ms;"></span>
+            </div>
+          </div>
+        `;
+        messages.appendChild(typingDiv);
+        messages.scrollTop = messages.scrollHeight;
+      }
+  
+      function hideTypingIndicator() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+      }
+  
+      function addBotMessage(text) {
+        hideTypingIndicator();
+        const messages = document.getElementById('messages');
+        const wrap = document.createElement('div');
+        wrap.className = 'mb-5 flex';
+  
+        // Crisis support detection with styled block
+        const crisisKeywords = ['988', '988lifeline.org', 'crisis counselor'];
+        const hasCrisisContent = crisisKeywords.some(k => text.toLowerCase().includes(k));
+  
+        if (hasCrisisContent && text.includes('988lifeline.org')) {
+          const safeLink = '<a href="https://988lifeline.org/" target="_blank" class="font-semibold text-stone-900 underline underline-offset-4">988lifeline.org</a>';
+          const formatted = text.replace('https://988lifeline.org/', safeLink);
+          wrap.innerHTML = `
+            <div class="max-w-[75%] sm:max-w-[65%] border-l-2 border-stone-200 pl-4">
+              <div class="rounded-lg border border-amber-300/70 bg-amber-50/80 p-4 text-[15px] leading-7 text-stone-900">
+                <strong class="mb-1.5 block font-medium">Crisis Support Available</strong>
+                ${formatted}
+              </div>
+            </div>
+          `;
+        } else {
+          wrap.innerHTML = `
+            <div class="max-w-[75%] sm:max-w-[65%] border-l-2 border-stone-200 pl-4 text-[15px] leading-7 text-stone-800 whitespace-pre-wrap">
+              ${escapeHtml(text)}
+            </div>
+          `;
+        }
+  
+        messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
+      }
+  
+      function addUserMessage(text) {
+        const messages = document.getElementById('messages');
+        const wrap = document.createElement('div');
+        wrap.className = 'mb-5 flex justify-end';
+        wrap.innerHTML = `
+          <div class="max-w-[80%] sm:max-w-[65%] rounded-l-xl border-r-2 border-stone-700 bg-stone-50 px-4 py-2.5 text-right text-[15px] leading-7 text-stone-900 whitespace-pre-wrap">
+            ${escapeHtml(text)}
+          </div>
+        `;
+        messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
+      }
+  
+      function updateProgress(day) {
+        const week = Math.ceil(day / 7);
+        const el = document.getElementById('progressIndicator');
+        el.classList.remove('hidden');
+        document.getElementById('progressDay').textContent = `Day ${day} of 30`;
+        document.getElementById('progressWeek').textContent = `Week ${week} of 4`;
+      }
+  
+      async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+        if (!message) return;
+  
+        document.getElementById('goalTemplates').classList.add('hidden');
+        addUserMessage(message);
+        input.value = '';
+  
+        showTypingIndicator();
+  
+        if (conversationState === 'initial') {
+          await createGoal(message);
+        } else if (conversationState === 'clarifying') {
+          await submitClarification(message);
+        } else if (conversationState === 'confirming') {
+          await handleGoalConfirmation(message);
+        } else if (conversationState === 'accepting') {
+          await handlePlanAcceptance(message);
+        } else if (conversationState === 'active') {
+          await handleCheckIn(message);
+        }
+      }
+  
+      async function createGoal(goalText) {
+        try {
+          const response = await fetch(`${API_BASE}/goals/create`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ goal: goalText })
+          });
+  
+          if (!response.ok) throw new Error('Failed to create goal');
+  
+          const data = await response.json();
+          currentGoalId = data.goal_id;
+          localStorage.setItem('current_goal_id', currentGoalId);
+          clarificationQuestions = data.questions;
+          conversationState = 'clarifying';
+  
+          let questionText = data.message + '\n\n';
+          data.questions.forEach((q, i) => {
+            questionText += `${i + 1}. ${q.question}`;
+            if (q.hint) questionText += ` (${q.hint})`;
+            questionText += '\n';
+          });
+  
+          addBotMessage(questionText.trim());
+        } catch (error) {
+          hideTypingIndicator();
+          addBotMessage('Sorry, something went wrong. Please try again.');
+        }
+      }
+  
+      async function submitClarification(answersText) {
+        const answers = {};
+        clarificationQuestions.forEach((q) => {
+          answers[q.question_id] = answersText;
+        });
+  
+        try {
+          const clarifyResponse = await fetch(`${API_BASE}/goals/${currentGoalId}/clarify`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ answers })
+          });
+  
+          if (!clarifyResponse.ok) throw new Error('Failed to clarify goal');
+  
+          const refined = await clarifyResponse.json();
+          refinedGoal = refined.refined_goal;
+          conversationState = 'confirming';
+  
+          addBotMessage(`Based on what you've shared, I suggest: "${refined.refined_goal}"\n\nIs this the goal you'd like to set for the next 30 days?`);
+        } catch (error) {
+          hideTypingIndicator();
+          addBotMessage('Sorry, something went wrong. Please try again.');
+        }
+      }
+  
+      async function handleGoalConfirmation(message) {
+        const isPositive = /yes|yeah|sure|ok|correct|right|sounds good|let'?s do it|perfect/i.test(message);
+  
+        if (isPositive) {
+          conversationState = 'accepting';
+          showTypingIndicator();
+  
+          try {
+            const breakdownResponse = await fetch(`${API_BASE}/goals/${currentGoalId}/breakdown`, {
+              method: 'POST',
+              headers: getHeaders()
+            });
+  
+            if (!breakdownResponse.ok) throw new Error('Failed to create breakdown');
+  
+            const breakdown = await breakdownResponse.json();
+  
+            let planText = 'Here is your 30-day plan:\n\n';
+            if (breakdown.milestones) {
+              planText += `Week 1: ${breakdown.milestones.day_7 || 'Foundation'}\n`;
+              planText += `Week 2: ${breakdown.milestones.day_14 || 'Building momentum'}\n`;
+              planText += `Week 3: ${breakdown.milestones.day_21 || 'Advanced progress'}\n`;
+              planText += `Week 4: ${breakdown.milestones.day_30 || 'Goal achievement'}\n\n`;
+            }
+  
+            if (Array.isArray(breakdown.daily_tasks)) {
+              for (let i = 0; i < Math.min(7, breakdown.daily_tasks.length); i++) {
+                const task = breakdown.daily_tasks[i];
+                planText += `Day ${i + 1}: ${task.task}\n`;
+              }
+            }
+  
+            planText += '\nDo you accept this challenge?';
+            addBotMessage(planText);
+          } catch (error) {
+            hideTypingIndicator();
+            addBotMessage('Sorry, something went wrong creating your plan.');
+          }
+        } else {
+          addBotMessage('What changes would you like to make to your goal?');
+        }
+      }
+  
+      async function handlePlanAcceptance(message) {
+        const isPositive = /yes|yeah|sure|ok|accept|let'?s go|i'?m in|ready/i.test(message);
+  
+        if (isPositive) {
+          conversationState = 'active';
+          updateProgress(1);
+          addBotMessage('Your 30-day journey begins now. I will check in with you daily to track your progress.');
+        } else {
+          addBotMessage('What modifications would you like to see in the plan?');
+        }
+      }
+  
+      async function handleCheckIn(message) {
+        addBotMessage('Daily check-in feature is being refined. For now, keep working on your daily tasks.');
+      }
+  
+      // Enter key to send
+      document.getElementById('userInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+  
+      // Basic HTML escaping for message rendering
+      function escapeHtml(str) {
+        return str
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
+      }
+    </script>
+  
+  </body></html>
+  

@@ -87,7 +87,8 @@ def _init_llm():
     if os.getenv("TEST_MODE"):
         return _Fake()
     if os.getenv("OPENAI_API_KEY"):
-        return ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7, max_tokens=1500)
+        model = os.getenv("OPENAI_MODEL", "gpt-4o")  # Allow override via env
+        return ChatOpenAI(model=model, temperature=0.5, max_tokens=3000)
     elif os.getenv("OPENROUTER_API_KEY"):
         # Use OpenRouter via OpenAI-compatible client
         return ChatOpenAI(
@@ -779,7 +780,7 @@ def build_graph():
     return g.compile()
 
 
-app = FastAPI(title="AI Trip Planner")
+app = FastAPI(title="AI Trip Planner & GoalBot")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -798,9 +799,38 @@ def serve_frontend():
     return {"message": "frontend/index.html not found"}
 
 
+@app.get("/goalbot")
+def serve_goalbot():
+    """Serve the GoalBot chat interface."""
+    here = os.path.dirname(__file__)
+    path = os.path.join(here, "..", "frontend", "goalbot.html")
+    if os.path.exists(path):
+        return FileResponse(path)
+    return {"message": "GoalBot frontend not found"}
+
+
 @app.get("/health")
 def health():
     return {"status": "healthy", "service": "ai-trip-planner"}
+
+
+# ============= GoalBot Integration =============
+# Import and include GoalBot routes
+try:
+    from goalbot import router as goalbot_router
+    from database import init_db
+    
+    app.include_router(goalbot_router, prefix="/api/goalbot", tags=["goalbot"])
+    
+    # Initialize database on startup
+    @app.on_event("startup")
+    def startup_event():
+        init_db()
+        print("✓ Database initialized")
+        print("✓ GoalBot routes registered at /api/goalbot")
+except ImportError as e:
+    print(f"⚠️  GoalBot not loaded: {e}")
+    print("   Trip planner routes still available")
 
 
 # Initialize tracing once at startup, not per request
