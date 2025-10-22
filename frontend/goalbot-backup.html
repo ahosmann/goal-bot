@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoalBot - 30-Day Goal Achievement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Subtle paper texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 31px,
+                    rgba(0,0,0,0.008) 31px,
+                    rgba(0,0,0,0.008) 32px
+                );
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #FAFAFA;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            color: #1A1A1A;
+            letter-spacing: 0.01em;
+        }
+        
+        .container {
+            background: #FFFFFF;
+            max-width: 800px;
+            width: 100%;
+            height: 92vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #E5E5E5;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            background: #FFFFFF;
+            padding: 48px 40px 32px;
+            text-align: center;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        
+        .header h1 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #1A1A1A;
+            letter-spacing: -0.02em;
+        }
+        
+        .auth-section {
+            padding: 48px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .auth-section h2 {
+            font-family: 'Crimson Pro', Georgia, serif;
+            color: #1A1A1A;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .input-group {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #6B6B6B;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E5E5E5;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 200ms ease;
+            background: #FFFFFF;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #000000;
+        }
+        
+        .btn {
+            padding: 12px 32px;
+            border: 1px solid #E5E5E5;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 200ms ease;
+            font-family: inherit;
+            background: #FFFFFF;
+            color: #1A1A1A;
+        }
+        
+        .btn:hover {
+            border-color: #2C2C2C;
+        }
+        
+        .btn-primary {
+            background: #000000;
+            color: #FFFFFF;
+            border-color: #000000;
+        }
+        
+        .btn-primary:hover {
+            background: #2C2C2C;
+            border-color: #2C2C2C;
+        }
+        
+        .btn-text {
+            background: transparent;
+            border: none;
+            text-decoration: underline;
+            padding: 8px;
+        }
+        
+        .chat-section {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-section.active {
+            display: flex;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            background: #FFFFFF;
+        }
+        
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .messages::-webkit-scrollbar-track {
+            background: #FAFAFA;
+        }
+        
+        .messages::-webkit-scrollbar-thumb {
+            background: #E5E5E5;
+        }
+        
+        .message {
+            margin-bottom: 32px;
+            display: flex;
+            gap: 0;
+            animation: fadeIn 200ms ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 65%;
+            padding: 0;
+            line-height: 1.7;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+        
+        .message.bot .message-content {
+            background: transparent;
+            color: #1A1A1A;
+            border-left: 2px solid #E5E5E5;
+            padding-left: 20px;
+        }
+        
+        .message.user .message-content {
+            background: #F8F8F8;
+            color: #1A1A1A;
+            border-right: 2px solid #2C2C2C;
+            padding-right: 20px;
+            text-align: right;
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding-left: 20px;
+            border-left: 2px solid #E5E5E5;
+        }
+        
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background: #6B6B6B;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+            }
+            30% {
+                opacity: 1;
+            }
+        }
+        
+        .goal-templates {
+            padding: 32px 40px;
+            background: #FFFFFF;
+            border-top: 1px solid #E5E5E5;
+            display: block;
+        }
+        
+        .goal-templates.hidden {
+            display: none;
+        }
+        
+        .templates-label {
+            font-size: 13px;
+            color: #6B6B6B;
+            margin-bottom: 16px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        
+        .template-btn {
+            padding: 12px 16px;
+            background: #FFFFFF;
+            border: 1px solid #E5E5E5;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 200ms ease;
+            text-align: left;
+            font-family: inherit;
+            color: #1A1A1A;
+        }
+        
+        .template-btn:hover {
+            border-color: #2C2C2C;
+        }
+        
+        .input-area {
+            padding: 32px 40px;
+            background: #FFFFFF;
+            border-top: 1px solid #E5E5E5;
+        }
+        
+        .input-area textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #E5E5E5;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            min-height: 80px;
+            line-height: 1.6;
+            background: #FFFFFF;
+            transition: border-color 200ms ease;
+        }
+        
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #000000;
+        }
+        
+        .input-area textarea::placeholder {
+            color: #B0B0B0;
+        }
+        
+        .input-area-actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .progress-indicator {
+            position: absolute;
+            top: 56px;
+            right: 40px;
+            font-size: 13px;
+            color: #6B6B6B;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .progress-indicator.active {
+            display: block;
+        }
+        
+        .progress-week {
+            font-size: 12px;
+            color: #B0B0B0;
+            margin-top: 2px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .error {
+            color: #C41E3A;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        
+        .crisis-alert {
+            background: #FFF9E6;
+            border: 1px solid #E5D4A3;
+            padding: 24px;
+            margin: 16px 0;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        .crisis-alert strong {
+            display: block;
+            margin-bottom: 12px;
+            color: #1A1A1A;
+        }
+        
+        .crisis-alert a {
+            color: #1A1A1A;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                height: 100vh;
+                border: none;
+            }
+            
+            .header {
+                padding: 32px 24px 24px;
+            }
+            
+            .messages {
+                padding: 24px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .input-area {
+                padding: 24px;
+            }
+            
+            .goal-templates {
+                padding: 24px;
+            }
+            
+            .progress-indicator {
+                top: 40px;
+                right: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GoalBot</h1>
+        </div>
+        
+        <div class="progress-indicator" id="progressIndicator">
+            <div id="progressDay">Day 0 of 30</div>
+            <div class="progress-week" id="progressWeek">Week 1 of 4</div>
+        </div>
+        
+        <div id="authSection" class="auth-section">
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome</h2>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" onclick="login()">Login</button>
+                <button class="btn-text btn" onclick="showSignup()">Create account</button>
+                <div id="loginError" class="error hidden"></div>
+            </div>
+            
+            <div id="signupForm" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="signupUsername" placeholder="your_name">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="you@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" onclick="signup()">Sign Up</button>
+                <button class="btn-text btn" onclick="showLogin()">Back to login</button>
+                <div id="signupError" class="error hidden"></div>
+            </div>
+        </div>
+        
+        <div id="chatSection" class="chat-section">
+            <div class="messages" id="messages">
+                <div class="message bot">
+                    <div class="message-content">What do you want to work on over the next 30 days?</div>
+                </div>
+            </div>
+            
+            <div class="goal-templates" id="goalTemplates">
+                <div class="templates-label">Popular goals</div>
+                <div class="templates-grid">
+                    <button class="template-btn" onclick="selectTemplate('Drink 8 glasses of water daily')">Drink more water</button>
+                    <button class="template-btn" onclick="selectTemplate('Have at least one meaningful conversation with a friend each week')">Improve friendships</button>
+                    <button class="template-btn" onclick="selectTemplate('Reduce daily screen time by 30%')">Decrease screen time</button>
+                    <button class="template-btn" onclick="selectTemplate('Cook at least 4 home-cooked meals per week')">Cook more meals</button>
+                    <button class="template-btn" onclick="selectTemplate('Read and finish 2 books in 30 days')">Read more books</button>
+                    <button class="template-btn" onclick="selectTemplate('Exercise for 30 minutes every day')">Daily exercise</button>
+                    <button class="template-btn" onclick="selectTemplate('Practice meditation for 10 minutes daily')">Start meditation</button>
+                    <button class="template-btn" onclick="selectTemplate('Maintain a consistent 7-8 hour sleep schedule')">Better sleep</button>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <textarea id="userInput" placeholder="Write your goal here..." rows="2"></textarea>
+                <div class="input-area-actions">
+                    <button class="btn" onclick="logout()">Logout</button>
+                    <button class="btn btn-primary" onclick="sendMessage()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000/api/goalbot';
+        let authToken = localStorage.getItem('goalbot_token');
+        let currentGoalId = localStorage.getItem('current_goal_id');
+        let conversationState = 'initial'; // initial, clarifying, confirming, accepting, active
+        let clarificationQuestions = [];
+        let refinedGoal = null;
+        
+        // Device-specific session ID for MVP privacy
+        let sessionId = localStorage.getItem('goalbot_session_id');
+        if (!sessionId) {
+            sessionId = crypto.randomUUID(); // Generate unique session ID
+            localStorage.setItem('goalbot_session_id', sessionId);
+        }
+        
+        // Helper function to get headers with session ID
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'X-Session-ID': sessionId
+            };
+        }
+        
+        // Initialize - Skip auth for MVP
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('chatSection').classList.add('active');
+        
+        // Use anonymous token for MVP
+        if (!authToken) {
+            authToken = 'anonymous-' + Date.now();
+            localStorage.setItem('goalbot_token', authToken);
+        }
+        
+        loadCurrentGoal();
+        
+        function showSignup() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
+        
+        function showLogin() {
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+        
+        async function signup() {
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/signup`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, email, password})
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Signup failed');
+                }
+                
+                const data = await response.json();
+                authToken = data.access_token;
+                localStorage.setItem('goalbot_token', authToken);
+                
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('chatSection').classList.add('active');
+            } catch (error) {
+                document.getElementById('signupError').textContent = error.message;
+                document.getElementById('signupError').classList.remove('hidden');
+            }
+        }
+        
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Login failed');
+                }
+                
+                const data = await response.json();
+                authToken = data.access_token;
+                localStorage.setItem('goalbot_token', authToken);
+                
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('chatSection').classList.add('active');
+                loadCurrentGoal();
+            } catch (error) {
+                document.getElementById('loginError').textContent = error.message;
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('goalbot_token');
+            localStorage.removeItem('current_goal_id');
+            location.reload();
+        }
+        
+        async function loadCurrentGoal() {
+            try {
+                const response = await fetch(`${API_BASE}/goals`, {
+                    headers: getHeaders()
+                });
+                
+                if (response.ok) {
+                    const goals = await response.json();
+                    const activeGoal = goals.find(g => g.status === 'active');
+                    
+                    if (activeGoal) {
+                        currentGoalId = activeGoal.id;
+                        localStorage.setItem('current_goal_id', currentGoalId);
+                        conversationState = 'active';
+                        updateProgress(activeGoal.current_day);
+                        addBotMessage(`Welcome back. You're on day ${activeGoal.current_day} of your goal: "${activeGoal.refined_goal}". Ready for today's check-in?`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading goal:', error);
+            }
+        }
+        
+        function selectTemplate(goalText) {
+            const input = document.getElementById('userInput');
+            input.value = goalText;
+            input.focus();
+            
+            // Hide templates after selection
+            document.getElementById('goalTemplates').classList.add('hidden');
+        }
+        
+        function showTypingIndicator() {
+            const messages = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+            messages.appendChild(typingDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        function addBotMessage(text) {
+            hideTypingIndicator();
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            // Detect crisis keywords and show alert if needed
+            const crisisKeywords = ['988', '988lifeline.org', 'crisis counselor'];
+            const hasCrisisContent = crisisKeywords.some(keyword => text.includes(keyword));
+            
+            if (hasCrisisContent && text.includes('988lifeline.org')) {
+                messageDiv.innerHTML = `<div class="message-content"><div class="crisis-alert"><strong>Crisis Support Available</strong>${text.replace('https://988lifeline.org/', '<a href="https://988lifeline.org/" target="_blank">988lifeline.org</a>')}</div></div>`;
+            } else {
+                messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+            }
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function addUserMessage(text) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function updateProgress(day) {
+            const week = Math.ceil(day / 7);
+            document.getElementById('progressIndicator').classList.add('active');
+            document.getElementById('progressDay').textContent = `Day ${day} of 30`;
+            document.getElementById('progressWeek').textContent = `Week ${week} of 4`;
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Hide templates after first message
+            document.getElementById('goalTemplates').classList.add('hidden');
+            
+            addUserMessage(message);
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            if (conversationState === 'initial') {
+                await createGoal(message);
+            } else if (conversationState === 'clarifying') {
+                await submitClarification(message);
+            } else if (conversationState === 'confirming') {
+                await handleGoalConfirmation(message);
+            } else if (conversationState === 'accepting') {
+                await handlePlanAcceptance(message);
+            } else if (conversationState === 'active') {
+                await handleCheckIn(message);
+            }
+        }
+        
+        async function createGoal(goalText) {
+            try {
+                const response = await fetch(`${API_BASE}/goals/create`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({goal: goalText})
+                });
+                
+                if (!response.ok) throw new Error('Failed to create goal');
+                
+                const data = await response.json();
+                currentGoalId = data.goal_id;
+                localStorage.setItem('current_goal_id', currentGoalId);
+                clarificationQuestions = data.questions;
+                conversationState = 'clarifying';
+                
+                // Display all questions in one message
+                let questionText = data.message + '\n\n';
+                data.questions.forEach((q, i) => {
+                    questionText += `${i + 1}. ${q.question}`;
+                    if (q.hint) questionText += ` (${q.hint})`;
+                    questionText += '\n';
+                });
+                
+                addBotMessage(questionText.trim());
+            } catch (error) {
+                hideTypingIndicator();
+                addBotMessage('Sorry, something went wrong. Please try again.');
+            }
+        }
+        
+        async function submitClarification(answersText) {
+            const answers = {};
+            clarificationQuestions.forEach((q) => {
+                answers[q.question_id] = answersText;
+            });
+            
+            try {
+                const clarifyResponse = await fetch(`${API_BASE}/goals/${currentGoalId}/clarify`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({answers})
+                });
+                
+                if (!clarifyResponse.ok) throw new Error('Failed to clarify goal');
+                
+                const refined = await clarifyResponse.json();
+                refinedGoal = refined.refined_goal;
+                conversationState = 'confirming';
+                
+                // Ask for confirmation as per PRD
+                addBotMessage(`Based on what you've shared, I suggest: "${refined.refined_goal}"\n\nIs this the goal you'd like to set for the next 30 days?`);
+            } catch (error) {
+                hideTypingIndicator();
+                addBotMessage('Sorry, something went wrong. Please try again.');
+            }
+        }
+        
+        async function handleGoalConfirmation(message) {
+            const isPositive = /yes|yeah|sure|ok|correct|right|sounds good|let'?s do it|perfect/i.test(message);
+            
+            if (isPositive) {
+                conversationState = 'accepting';
+                showTypingIndicator();
+                
+                try {
+                    const breakdownResponse = await fetch(`${API_BASE}/goals/${currentGoalId}/breakdown`, {
+                        method: 'POST',
+                        headers: getHeaders()
+                    });
+                    
+                    if (!breakdownResponse.ok) throw new Error('Failed to create breakdown');
+                    
+                    const breakdown = await breakdownResponse.json();
+                    
+                    // Format weekly breakdown with days 1-7 as per PRD
+                    let planText = 'Here is your 30-day plan:\n\n';
+                    
+                    if (breakdown.milestones) {
+                        planText += `Week 1: ${breakdown.milestones.day_7 || 'Foundation'}\n`;
+                        planText += `Week 2: ${breakdown.milestones.day_14 || 'Building momentum'}\n`;
+                        planText += `Week 3: ${breakdown.milestones.day_21 || 'Advanced progress'}\n`;
+                        planText += `Week 4: ${breakdown.milestones.day_30 || 'Goal achievement'}\n\n`;
+                    }
+                    
+                    // Show first 7 days
+                    for (let i = 0; i < Math.min(7, breakdown.daily_tasks.length); i++) {
+                        const task = breakdown.daily_tasks[i];
+                        planText += `Day ${i + 1}: ${task.task}\n`;
+                    }
+                    
+                    planText += '\nDo you accept this challenge?';
+                    
+                    addBotMessage(planText);
+                } catch (error) {
+                    hideTypingIndicator();
+                    addBotMessage('Sorry, something went wrong creating your plan.');
+                }
+            } else {
+                addBotMessage('What changes would you like to make to your goal?');
+            }
+        }
+        
+        async function handlePlanAcceptance(message) {
+            const isPositive = /yes|yeah|sure|ok|accept|let'?s go|i'?m in|ready/i.test(message);
+            
+            if (isPositive) {
+                conversationState = 'active';
+                updateProgress(1);
+                addBotMessage('Your 30-day journey begins now. I will check in with you daily to track your progress.');
+            } else {
+                addBotMessage('What modifications would you like to see in the plan?');
+            }
+        }
+        
+        async function handleCheckIn(message) {
+            addBotMessage('Daily check-in feature is being refined. For now, keep working on your daily tasks.');
+        }
+        
+        // Enter key to send
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

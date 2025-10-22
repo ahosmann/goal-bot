@@ -11,34 +11,20 @@ from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-# Minimal observability via Arize/OpenInference (optional)
-try:
-    from arize.otel import register
-    from openinference.instrumentation.langchain import LangChainInstrumentor
-    from openinference.instrumentation.litellm import LiteLLMInstrumentor
-    from openinference.instrumentation import using_prompt_template, using_metadata, using_attributes
-    from opentelemetry import trace
-    _TRACING = True
-except Exception:
-    def using_prompt_template(**kwargs):  # type: ignore
-        from contextlib import contextmanager
-        @contextmanager
-        def _noop():
-            yield
-        return _noop()
-    def using_metadata(*args, **kwargs):  # type: ignore
-        from contextlib import contextmanager
-        @contextmanager
-        def _noop():
-            yield
-        return _noop()
-    def using_attributes(*args, **kwargs):  # type: ignore
-        from contextlib import contextmanager
-        @contextmanager
-        def _noop():
-            yield
-        return _noop()
-    _TRACING = False
+# Arize AX Observability
+# Import tracing utilities from dedicated module
+from arize_tracing import (
+    init_arize_tracing,
+    is_tracing_enabled,
+    using_prompt_template,
+    using_metadata,
+    using_attributes,
+    get_current_span,
+    set_span_attributes,
+)
+
+# Initialize Arize tracing (safe - only initializes if credentials present)
+_TRACING = init_arize_tracing()
 
 # LangGraph + LangChain
 from langgraph.graph import StateGraph, END, START
@@ -539,7 +525,7 @@ def research_agent(state: TripState) -> TripState:
     # Agent metadata and prompt template instrumentation
     with using_attributes(tags=["research", "info_gathering"]):
         if _TRACING:
-            current_span = trace.get_current_span()
+            current_span = get_current_span()
             if current_span:
                 current_span.set_attribute("metadata.agent_type", "research")
                 current_span.set_attribute("metadata.agent_node", "research_agent")
@@ -594,7 +580,7 @@ def budget_agent(state: TripState) -> TripState:
     # Agent metadata and prompt template instrumentation
     with using_attributes(tags=["budget", "cost_analysis"]):
         if _TRACING:
-            current_span = trace.get_current_span()
+            current_span = get_current_span()
             if current_span:
                 current_span.set_attribute("metadata.agent_type", "budget")
                 current_span.set_attribute("metadata.agent_node", "budget_agent")
@@ -674,7 +660,7 @@ def local_agent(state: TripState) -> TripState:
     # Agent metadata and prompt template instrumentation
     with using_attributes(tags=["local", "local_experiences"]):
         if _TRACING:
-            current_span = trace.get_current_span()
+            current_span = get_current_span()
             if current_span:
                 current_span.set_attribute("metadata.agent_type", "local")
                 current_span.set_attribute("metadata.agent_node", "local_agent")
@@ -742,7 +728,7 @@ def itinerary_agent(state: TripState) -> TripState:
     # NOTE: using_attributes must be OUTER context for proper propagation
     with using_attributes(tags=["itinerary", "final_agent"]):
         if _TRACING:
-            current_span = trace.get_current_span()
+            current_span = get_current_span()
             if current_span:
                 current_span.set_attribute("metadata.itinerary", "true")
                 current_span.set_attribute("metadata.agent_type", "itinerary")
@@ -833,18 +819,6 @@ except ImportError as e:
     print("   Trip planner routes still available")
 
 
-# Initialize tracing once at startup, not per request
-if _TRACING:
-    try:
-        space_id = os.getenv("ARIZE_SPACE_ID")
-        api_key = os.getenv("ARIZE_API_KEY")
-        if space_id and api_key:
-            tp = register(space_id=space_id, api_key=api_key, project_name="ai-trip-planner")
-            LangChainInstrumentor().instrument(tracer_provider=tp, include_chains=True, include_agents=True, include_tools=True)
-            LiteLLMInstrumentor().instrument(tracer_provider=tp, skip_dep_check=True)
-    except Exception:
-        pass
-
 @app.post("/plan-trip", response_model=TripResponse)
 def plan_trip(req: TripRequest):
     graph = build_graph()
@@ -872,7 +846,7 @@ def plan_trip(req: TripRequest):
     # Add turn_index as a custom span attribute if provided
     if turn_idx is not None and _TRACING:
         with using_attributes(**attrs_kwargs):
-            current_span = trace.get_current_span()
+            current_span = get_current_span()
             if current_span:
                 current_span.set_attribute("turn_index", turn_idx)
             out = graph.invoke(state)

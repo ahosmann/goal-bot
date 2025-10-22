@@ -13,6 +13,17 @@ from langgraph.prebuilt import ToolNode
 # Import LLM from main
 from main import llm
 
+# Import tracing utilities for Arize AX observability
+from arize_tracing import (
+    is_tracing_enabled,
+    using_prompt_template,
+    using_attributes,
+    get_current_span,
+    set_span_attributes,
+)
+
+_TRACING = is_tracing_enabled()
+
 # ============= Validation =============
 
 def validate_goal_consistency(
@@ -201,7 +212,16 @@ Generate exactly 3 questions that are personalized to "{original_goal}" - NOT ge
         HumanMessage(content=f"Goal: {original_goal}")
     ]
     
-    response = llm.invoke(messages)
+    # Instrument with Arize AX tracing
+    with using_attributes(tags=["goalbot", "clarification"]):
+        if _TRACING:
+            current_span = get_current_span()
+            if current_span:
+                current_span.set_attribute("agent.type", "clarification")
+                current_span.set_attribute("agent.goal", original_goal)
+        
+        with using_prompt_template(template=prompt, variables={"original_goal": original_goal}, version="v1"):
+            response = llm.invoke(messages)
     
     # Parse questions from response
     try:
@@ -306,7 +326,16 @@ Respond in JSON format:
         HumanMessage(content=f"Refine this goal for a 30-day sprint")
     ]
     
-    response = llm.invoke(messages)
+    # Instrument with Arize AX tracing
+    with using_attributes(tags=["goalbot", "refinement"]):
+        if _TRACING:
+            current_span = get_current_span()
+            if current_span:
+                current_span.set_attribute("agent.type", "refinement")
+                current_span.set_attribute("agent.goal", original_goal)
+        
+        with using_prompt_template(template=prompt, variables={"original_goal": original_goal, "context": context}, version="v1"):
+            response = llm.invoke(messages)
     
     # Parse refinement from response
     try:
@@ -412,7 +441,17 @@ REMEMBER: Each week must show clear progression and be distinctly different from
         HumanMessage(content="Create the 30-day breakdown")
     ]
     
-    response = llm.invoke(messages)
+    # Instrument with Arize AX tracing
+    with using_attributes(tags=["goalbot", "breakdown"]):
+        if _TRACING:
+            current_span = get_current_span()
+            if current_span:
+                current_span.set_attribute("agent.type", "breakdown")
+                current_span.set_attribute("agent.goal", refined_goal)
+                current_span.set_attribute("agent.category", category)
+        
+        with using_prompt_template(template=prompt, variables={"refined_goal": refined_goal, "category": category}, version="v1"):
+            response = llm.invoke(messages)
     
     # Parse breakdown from response
     try:
@@ -476,7 +515,15 @@ Generate a corrected breakdown now."""
             HumanMessage(content=retry_prompt)
         ]
         
-        retry_response = llm.invoke(retry_messages)
+        # Instrument retry with tracing
+        with using_attributes(tags=["goalbot", "breakdown_retry"]):
+            if _TRACING:
+                current_span = get_current_span()
+                if current_span:
+                    current_span.set_attribute("agent.retry", True)
+                    current_span.set_attribute("agent.validation_failed", True)
+            
+            retry_response = llm.invoke(retry_messages)
         
         # Re-parse
         try:
@@ -573,7 +620,20 @@ Provide professional, constructive feedback that keeps them accountable."""
         HumanMessage(content="Provide check-in feedback")
     ]
     
-    response = llm.invoke(messages)
+    # Instrument with Arize AX tracing
+    with using_attributes(tags=["goalbot", "checkin"]):
+        if _TRACING:
+            current_span = get_current_span()
+            if current_span:
+                current_span.set_attribute("agent.type", "checkin")
+                current_span.set_attribute("agent.goal", goal)
+                current_span.set_attribute("agent.day", day_number)
+                current_span.set_attribute("agent.task_completed", task_completed)
+                current_span.set_attribute("agent.confidence", confidence_level)
+        
+        with using_prompt_template(template=prompt, variables={"goal": goal, "day_number": day_number}, version="v1"):
+            response = llm.invoke(messages)
+    
     feedback = response.content
     
     # Determine if plan adjustment needed

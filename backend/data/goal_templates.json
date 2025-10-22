@@ -1,0 +1,67 @@
+[
+  {
+    "category": "fitness",
+    "template": "Build a consistent exercise habit and improve baseline fitness",
+    "description": "Focus on establishing a daily movement practice, progressive overload, and recovery. Track metrics like workout completion, strength gains, or endurance improvements.",
+    "daily_actions": ["Morning stretching routine", "30-min workout session", "Track nutrition", "Evening walk"],
+    "common_obstacles": ["Time constraints", "Motivation dips", "Soreness/fatigue", "Weather"],
+    "success_tips": ["Start with 10-15 min workouts", "Schedule workouts like appointments", "Find an accountability partner", "Celebrate small wins"]
+  },
+  {
+    "category": "learning",
+    "template": "Develop foundational skills in a new subject or technology",
+    "description": "Use spaced repetition, active recall, and practical projects. Focus on consistent daily practice over marathon sessions.",
+    "daily_actions": ["30-min focused study", "Practice exercises", "Build mini-project", "Review yesterday's material"],
+    "common_obstacles": ["Information overload", "Plateau feeling", "Imposter syndrome", "Distraction"],
+    "success_tips": ["Use the Feynman technique", "Build something real", "Join a community", "Track streak visually"]
+  },
+  {
+    "category": "career",
+    "template": "Advance career through skill building or networking",
+    "description": "Focus on tangible deliverables, measurable skills, and relationship building. Document progress for portfolio or resume.",
+    "daily_actions": ["Skill practice", "Networking activity", "Portfolio work", "Industry reading"],
+    "common_obstacles": ["Day job demands", "Unclear direction", "Networking anxiety", "Perfectionism"],
+    "success_tips": ["Set specific deliverables", "Start with warm connections", "Share work publicly", "Ask for feedback"]
+  },
+  {
+    "category": "creativity",
+    "template": "Build a creative habit and complete a meaningful project",
+    "description": "Emphasize process over product, quantity over quality initially, and regular creation time. Finish > perfect.",
+    "daily_actions": ["Morning pages/creation time", "Skill practice", "Work on project", "Consume inspiration"],
+    "common_obstacles": ["Perfectionism", "Creative blocks", "Self-doubt", "Comparison"],
+    "success_tips": ["Create before you consume", "Set quantity goals", "Ship imperfect work", "Find a creative community"]
+  },
+  {
+    "category": "wellness",
+    "template": "Improve mental health and wellbeing practices",
+    "description": "Focus on sustainable self-care habits: sleep, stress management, mindfulness, or therapy goals.",
+    "daily_actions": ["Morning routine", "Meditation/breathing", "Gratitude practice", "Sleep hygiene"],
+    "common_obstacles": ["Stress spikes", "Inconsistent routine", "Feeling selfish", "Skepticism"],
+    "success_tips": ["Start with 5 minutes", "Link to existing habits", "Track mood changes", "Be self-compassionate"]
+  },
+  {
+    "category": "financial",
+    "template": "Improve financial habits and reach savings milestone",
+    "description": "Build awareness through tracking, create systems for saving/paying down debt, educate yourself on money management.",
+    "daily_actions": ["Track expenses", "Review budget", "Save/invest automatic", "Financial education"],
+    "common_obstacles": ["Unexpected expenses", "Lifestyle creep", "Debt pressure", "Money anxiety"],
+    "success_tips": ["Automate everything", "Start with 1% improvements", "Celebrate small wins", "Get accountability"]
+  },
+  {
+    "category": "relationships",
+    "template": "Strengthen relationships through intentional connection",
+    "description": "Focus on quality time, communication skills, and consistent effort. Relationships need maintenance and investment.",
+    "daily_actions": ["Quality conversation", "Acts of service/kindness", "Plan shared activity", "Active listening practice"],
+    "common_obstacles": ["Busy schedules", "Communication gaps", "Taking for granted", "Conflict avoidance"],
+    "success_tips": ["Schedule connection time", "Ask better questions", "Express gratitude daily", "Address issues early"]
+  },
+  {
+    "category": "general",
+    "template": "Make meaningful progress on a personal goal",
+    "description": "Break down your goal into small daily actions, track progress consistently, and adjust based on what you learn.",
+    "daily_actions": ["Morning goal review", "1-hour focused work", "Progress tracking", "Evening reflection"],
+    "common_obstacles": ["Motivation dips", "Unclear next steps", "Life interruptions", "Losing sight of why"],
+    "success_tips": ["Connect to your why daily", "Make it visible", "Tell someone", "Adjust, don't quit"]
+  }
+]
+
